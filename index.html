@@ -1,84 +1,89 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Bouncing DVD Logo</title>
-    <style>
-      html,
-      body {
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-      }
-      canvas {
-        display: block;
-      }
-    </style>
-  </head>
-  <body>
-    <canvas id="canvas"></canvas>
-    <audio autoplay loop volume="1.0">
-      <source src="http://sndup.net/jh4x/d" type="audio/mpeg">
-    </audio>
+<head>
+	<title>Ghetto Dictionary</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<style>
+		#definitions {
+			font-size: 1.2em;
+			height: 150px;
+			overflow-y: scroll;
+			border: 1px solid #ccc;
+			padding: 10px;
+			margin-bottom: 20px;
+		}
+		.arrow {
+			display: inline-block;
+			border: solid black;
+			border-width: 0 3px 3px 0;
+			padding: 3px;
+			margin-right: 5px;
+			cursor: pointer;
+		}
+		.up {
+			transform: rotate(-135deg);
+			-webkit-transform: rotate(-135deg);
+		}
+		.down {
+			transform: rotate(45deg);
+			-webkit-transform: rotate(45deg);
+		}
+	</style>
+</head>
+<body>
+	<h1>Ghetto Dictionary</h1>
+	<input type="text" id="word" placeholder="Enter a word">
+	<button onclick="getDefinitions()">Get Definitions</button>
+	<div id="definitions"></div>
+	<div>
+		<span class="arrow up" onclick="scrollUp()"></span>
+		<span class="arrow down" onclick="scrollDown()"></span>
+	</div>
 
-    <script>
-      const canvas = document.getElementById('canvas');
-      const ctx = canvas.getContext('2d');
+	<script>
+		var currentIndex = 0;
+		var definitions = [];
 
-      // Load the image
-      const img = new Image();
-      img.src = 'https://v3rmillion.net/uploads/avatars/avatar_2142296.jpg?dateline=1627091229';
+		function getDefinitions() {
+			var word = document.getElementById("word").value;
+			var url = 'https://api.urbandictionary.com/v0/define?term=' + encodeURIComponent(word);
+			var xhr = new XMLHttpRequest();
+			xhr.open("GET", url, true);
+			xhr.onreadystatechange = function() {
+				if (this.readyState == 4 && this.status == 200) {
+					var response = JSON.parse(this.responseText);
+					definitions = [];
+					for (var i = 0; i < response.list.length; i++) {
+						var definition = response.list[i].definition;
+						definitions.push(definition);
+					}
+					displayDefinition(currentIndex);
+				}
+			};
+			xhr.send();
+		}
 
-      // Set the initial position and velocity
-      let x = canvas.width / 2 - img.width / 2;
-      let y = canvas.height / 2 - img.height / 2;
-      let vx = 5;
-      let vy = 5;
+		function displayDefinition(index) {
+			var definitionContainer = document.getElementById("definitions");
+			definitionContainer.innerHTML = "";
+			var definition = definitions[index];
+			definitionContainer.innerHTML = definition;
+		}
 
-      // Resize the canvas to fill the screen
-      function resizeCanvas() {
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
-        x = canvas.width / 2 - img.width / 2;
-        y = canvas.height / 2 - img.height / 2;
-      }
+		function scrollUp() {
+			if (currentIndex > 0) {
+				currentIndex--;
+				displayDefinition(currentIndex);
+			}
+		}
 
-      window.addEventListener('resize', resizeCanvas);
-
-      // Draw the image on the canvas
-      function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(img, x, y);
-      }
-
-
-      // Move the image and bounce off the edges of the canvas
-      function move() {
-        x += vx;
-        y += vy;
-
-        if (x + img.width > canvas.width || x < 0) {
-          vx = -vx;
-        }
-
-        if (y + img.height > canvas.height || y < 0) {
-          vy = -vy;
-        }
-      }
-
-      // Animate the image
-      function animate() {
-        draw();
-        move();
-        requestAnimationFrame(animate);
-      }
-
-      // Start the animation
-      img.onload = () => {
-        resizeCanvas();
-        animate();
-      };
-    </script>
-  </body>
+		function scrollDown() {
+			if (currentIndex < definitions.length - 1) {
+				currentIndex++;
+				displayDefinition(currentIndex);
+			}
+		}
+	</script>
+</body>
 </html>
