@@ -1,25 +1,79 @@
-<!DOCTYPE HTML>
+<!DOCTYPE html>
 <html>
-    <head>
-        <meta charset='utf8'>
-    </head>
-    <body>
-        <div id='ruffle'></div>
-        <script src='https://e9x.github.io/ruffle-example/ruffle.js'></script>
-        <script>
-var swfobject = {};
-swfobject.embedSWF = function(url, cont, width, height){
-    var ruffle = window.RufflePlayer.newest(),
-        player = Object.assign(document.getElementById(cont).appendChild(ruffle.createPlayer()), {
-            width: width,
-            height: height,
-            style: 'width: ' + width + 'px; height: ' + height + 'px',
-        });
-    
-    player.load({ url: url });
+<head>
+	<title>Red Circle</title>
+	<style>
+.circle {
+	width: 100px;
+	height: 100px;
+	border-radius: 50%;
+	background-color: darkblue; /* new background-color */
+	position: absolute;
+	transform: translate(-50%, -50%);
 }
+body {
+	background-color: #555; /* new background-color */
+}
+		#score, #highest-score {
+			font-family: Impact, sans-serif; /* use Impact font */
+		}
+	</style>
+</head>
+<body>
+	<div class="circle" id="circle1"></div>
+	<div class="circle" id="circle2"></div>
+	<div class="circle" id="circle3"></div>
+	<div>Score: <span id="score">0</span></div>
+	<div>Highest score: <span id="highest-score">0</span></div>
+	<script>
+		var circles = document.querySelectorAll('.circle');
+		var score = 0;
+		var highestScore = 0;
+		var scoreElement = document.getElementById('score');
+		var highestScoreElement = document.getElementById('highest-score');
+		var cooldown = 1000;
+		var timerId = null;
 
-swfobject.embedSWF('https://ubg100.bitbucket.io/games/SWF/btd.swf', 'ruffle', 900, 900);
-        </script>
-    </body>
+		function decreaseCooldown() {
+			if (score > 0) {
+				cooldown -= 10;
+			}
+		}
+
+		function updateScore() {
+			score--;
+			scoreElement.textContent = score;
+			if (score < 0) {
+				score = 0;
+			}
+			if (score > highestScore) {
+				highestScore = score;
+				highestScoreElement.textContent = highestScore;
+			}
+			cooldown = 1000 - (score * 10);
+			clearTimeout(timerId);
+			timerId = setTimeout(updateScore, cooldown);
+		}
+
+		circles.forEach(function(circle) {
+			circle.addEventListener('mouseover', function() {
+				var maxX = window.innerWidth - this.offsetWidth;
+				var maxY = window.innerHeight - this.offsetHeight;
+				var newX = Math.floor(Math.random() * maxX);
+				var newY = Math.floor(Math.random() * maxY);
+				this.style.top = newY + 'px';
+				this.style.left = newX + 'px';
+				score++;
+				scoreElement.textContent = score;
+				if (score > highestScore) {
+					highestScore = score;
+					highestScoreElement.textContent = highestScore;
+				}
+				cooldown = 1000 - (score * 10);
+				clearTimeout(timerId);
+				timerId = setTimeout(updateScore, cooldown);
+			});
+		});
+	</script>
+</body>
 </html>
