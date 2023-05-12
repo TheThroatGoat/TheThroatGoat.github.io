@@ -1,121 +1,89 @@
 <!DOCTYPE html>
 <html>
-<head>
-	<title>Camera Demo</title>
-	<style>
-#camera-preview {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-}
-		#person-alive {
-			position: absolute;
-			top: 50px;
-			left: 50px;
-			font-family: Impact, Charcoal, sans-serif;
-			overflow: auto;
-			user-select: none;
-			z-index: 100;
-			resize: none;
-			color: white;
-			text-stroke: 10px black;
-			-webkit-text-stroke: 2px black;
-			/* Add the following line to make the text editable and copyable */
-			contenteditable: true;
-		}
+  <head>
+    <title>Dodgeball</title>
+    <style>
+      body {
+        background-color: #333333;
+      }
 
+      .circle {
+        width: 100px;
+        height: 100px;
+        background-color: blue;
+        border-radius: 50%;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
 
-		#person-alive.resizable {
-			resize: both;
-		}
-	</style>
-</head>
-<body>
-<video id="camera-preview" autoplay></video>
-<p id="person-alive" contenteditable>person alive</p>
-	<script>	
-// get the video element
-		const video = document.getElementById('camera-preview');
-		const personAlive = document.getElementById('person-alive');
+      #score {
+        font-family: Impact, sans-serif;
+        font-size: 48px;
+        color: white;
+        text-shadow: 2px 2px 2px black;
+        position: absolute;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="circle"></div>
+    <div id="score">Score: 0</div>
+    <script>
+      var circle = document.querySelector('.circle');
+      var speed = 8;
+      var mouseX = 0;
+      var mouseY = 0;
+      var score = 0;
 
-		// prompt the user for camera access
-		navigator.mediaDevices.getUserMedia({ video: true })
-			.then(stream => {
-				// set the video element source to the camera stream
-				video.srcObject = stream;
-			})
-			.catch(error => {
-				// handle errors
-				console.error('Error accessing camera', error);
-			});
+      document.addEventListener('mousemove', function(e) {
+        mouseX = e.clientX;
+        mouseY = e.clientY;
+      });
 
-		// make the "person alive" text draggable
-		let isDragging = false;
-		let currentX;
-		let currentY;
-		let initialX;
-		let initialY;
-		let xOffset = 0;
-		let yOffset = 0;
-		let initialHeight;
+      function animateCircle() {
+        var circleX = circle.getBoundingClientRect().left + circle.offsetWidth / 2;
+        var circleY = circle.getBoundingClientRect().top + circle.offsetHeight / 2;
+        var deltaX = mouseX - circleX;
+        var deltaY = mouseY - circleY;
+        var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+        var angle = Math.atan2(deltaY, deltaX);
+        var moveX = speed * Math.cos(angle);
+        var moveY = speed * Math.sin(angle);
+        if (distance > speed) {
+          circle.style.left = circleX + moveX + 'px';
+          circle.style.top = circleY + moveY + 'px';
+        }
+        requestAnimationFrame(animateCircle);
 
-		personAlive.addEventListener('mousedown', dragStart);
+        var bodyRect = document.body.getBoundingClientRect();
+        var circleRect = circle.getBoundingClientRect();
+        var circleCenterX = circleRect.left + circleRect.width / 2 - bodyRect.left;
+        var circleCenterY = circleRect.top + circleRect.height / 2 - bodyRect.top;
+        var cursorDistance = Math.sqrt(Math.pow(mouseX - circleCenterX, 2) + Math.pow(mouseY - circleCenterY, 2));
+        if (cursorDistance < circleRect.width / 2) {
+          alert('You lost!');
+          score = 0;
+          speed = 8;
+          document.getElementById('score').innerHTML = 'Score: ' + score;
+          circle.style.top = '50%';
+          circle.style.left = '50%';
+        }
+      }
 
-		window.addEventListener('mouseup', dragEnd);
-		window.addEventListener('mousemove', drag);
+      function updateScore() {
+        score += 1;
+        speed += 0.3;
+        document.getElementById('score').innerHTML = 'Score: ' + score;
+      }
 
-		function dragStart(e) {
-			if (e.ctrlKey) {
-				personAlive.classList.add('resizable');
-			} else {
-				initialX = e.clientX - xOffset;
-				initialY = e.clientY - yOffset;
+      setInterval(updateScore, 1000);
 
-				if (e.target === personAlive) {
-					isDragging = true;
-				}
-			}
-		}
-
-		function dragEnd(e) {
-			if (!e.ctrlKey) {
-				initialX = currentX;
-				initialY = currentY;
-
-				isDragging = false;
-			}
-		}
-
-		function drag(e) {
-			if (e.ctrlKey) {
-				personAlive.classList.add('resizable');
-			} else {
-				personAlive.classList.remove('resizable');
-			}
-
-
-			if (isDragging && !e.ctrlKey) {
-				e.preventDefault();
-
-				currentX = e.clientX - initialX;
-				currentY = e.clientY - initialY;
-
-				xOffset = currentX;
-				yOffset = currentY;
-
-				setTranslate(currentX, currentY, personAlive);
-			} else if (e.ctrlKey) {
-				const height = personAlive.offsetHeight;
-				const fontSize = height / 1.5;
-				personAlive.style.fontSize = `${fontSize}px`;
-			}
-		}
-
-		function setTranslate(xPos, yPos, el) {
-			el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
-		}
-	</script>
-</body>
+      animateCircle();
+    </script>
+  </body>
 </html>
