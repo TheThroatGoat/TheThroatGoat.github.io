@@ -1,112 +1,54 @@
 <!DOCTYPE html>
 <html>
-<head>
-<meta charset="UTF-8">
-<title>Google</title>
-<style>
-body {
-background-color: #14b86b;
-font-family: Arial, sans-serif;
-color: #ffffff;
-}
-h1 {
-text-align: center;
-margin-top: 50px;
-font-size: 48px;
-}
-.container {
-display: flex;
-flex-direction: column;
-align-items: center;
-margin-top: 50px;
-}
-.question-input {
-border: none;
-border-radius: 5px;
-padding: 10px;
-margin-top: 20px;
-font-size: 18px;
-width: 500px;
-max-width: 100%;
-background-color: #05fc88;
-color: #ffffff;
-text-align: center;
-outline: none;
-}
-.answer {
-margin-top: 20px;
-font-size: 15px;
-text-align: center;
-}
-.loading {
-font-size: 15px;
-text-align: center;
-}
-button {
-margin-top: 10px;
-font-size: 16px;
-background-color: #18ed89;
-color: #ffffff;
-border: none;
-border-radius: 5px;
-padding: 10px;
-cursor: pointer;
-}
-</style>
-</head>
-<body>
-<h1>CLIFF BOT PRO</h1>
-<div class="container">
-<input type="text" id="question" class="question-input" placeholder="Ask a question...">
-<div id="loading" class="loading"></div>
-<div id="answer" class="answer"></div>
-<button id="speak-button" disabled>Speak Answer</button>
-</div>
-<script>
-const OPENAI_API_KEY = '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';
-const questionInput = document.getElementById('question');
-const loading = document.getElementById('loading');
-const answer = document.getElementById('answer');
-const speakButton = document.getElementById('speak-button');
-let speech = new SpeechSynthesisUtterance();
-
-questionInput.addEventListener('keydown', (event) => {
-if (event.keyCode === 13) {
-loading.innerText = 'Loading Answer Please Wait...';
-answer.innerText = '';
-speakButton.disabled = true;
-
-fetch('https://api.openai.com/v1/completions', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-'Authorization': `Bearer ${OPENAI_API_KEY}`
-},
-body: JSON.stringify({
-model: 'text-davinci-003',
-prompt:  "Act as Cliff, 14, a black Texan with a penchant for steak but doesn't talk about it much and an eye as sharp as his wit, spoke in an friendly but tough, sarcastic tone. His favorite color was black and he didn't take kindly to insults. He was smart enough to spot a scam or trick from a mile away, never one to follow orders or try to diffuse angry tones. Heres my first prompt. "+questionInput.value+" ",
-temperature: 0.7,
-max_tokens: 1000,
-top_p: 1,
-frequency_penalty: 0,
-presence_penalty: 0
-})
-})
-.then(response => response.json())
-.then(data => {
-const answerText = data.choices[0].text.trim();
-loading.innerText = '';
-answer.innerText = answerText;
-speech.text = answerText;
-speakButton.disabled = false;
-})
-.catch(error => console.error(error));
-}
-});
-
-speakButton.addEventListener('click', () => {
-window.speechSynthesis.speak(speech);
-});
-</script>
-</body>
+  <head>
+    <title>Bouncing Image</title>
+    <style>
+      #image {
+        position: absolute;
+        animation: bounce 2s infinite;
+      }
+      
+      @keyframes bounce {
+        0% { top: 0; left: 0; }
+        25% { top: 0; left: 50%; }
+        50% { top: 50%; left: 50%; }
+        75% { top: 50%; left: 0; }
+        100% { top: 0; left: 0; }
+      }
+    </style>
+  </head>
+  
+  <body>
+    <img id="image" src="your-image-source-here.jpg" width="100" height="100" />
+  </body>
+  
+  <script>
+    const image = document.getElementById("image");
+    
+    // Set random starting position
+    image.style.top = Math.floor(Math.random() * window.innerHeight) + "px";
+    image.style.left = Math.floor(Math.random() * window.innerWidth) + "px";
+    
+    // Change direction on collision with window edge
+    function checkEdges() {
+      const rect = image.getBoundingClientRect();
+      if (rect.top < 0 || rect.bottom > window.innerHeight) {
+        image.dy *= -1;
+      }
+      if (rect.left < 0 || rect.right > window.innerWidth) {
+        image.dx *= -1;
+      }
+    }
+    
+    // Randomize direction and speed
+    image.dx = Math.floor(Math.random() * 5) + 1;
+    image.dy = Math.floor(Math.random() * 5) + 1;
+    
+    // Move image and check for collision
+    setInterval(() => {
+      image.style.top = (image.offsetTop + image.dy) + "px";
+      image.style.left = (image.offsetLeft + image.dx) + "px";
+      checkEdges();
+    }, 10);
+  </script>
 </html>
