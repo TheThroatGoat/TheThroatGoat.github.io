@@ -1,90 +1,26 @@
-<!DOCTYPE html>
+<!DOCTYPE HTML>
 <html>
-<head>
-	<title>Ghetto Dictionary</title>
-	<meta charset="UTF-8">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<style>
-		#definitions {
-			font-size: 1.2em;
-			height: 150px;
-			overflow-y: scroll;
-			border: 1px solid #ccc;
-			padding: 10px;
-			margin-bottom: 20px;
-		}
-		.arrow {
-			display: inline-block;
-			border: solid black;
-			border-width: 0 3px 3px 0;
-			padding: 3px;
-			margin-right: 5px;
-			cursor: pointer;
-		}
-		.up {
-			transform: rotate(-135deg);
-			-webkit-transform: rotate(-135deg);
-		}
-		.down {
-			transform: rotate(45deg);
-			-webkit-transform: rotate(45deg);
-		}
-	</style>
-</head>
-<body>
-	<h1>Ghetto Dictionary</h1>
-	<input type="text" id="word" placeholder="Enter a word">
-	<button onclick="getDefinitions()">Get Definitions</button>
-	<div id="definitions"></div>
-	<div>
+    <head>
+        <meta charset='utf8'>
+    </head>
+    <body>
+        <div id='ruffle'></div>
+        <script src='https://e9x.github.io/ruffle-example/ruffle.js'></script>
+        <script>
+var swfobject = {};
 
-		<span class="arrow up" onclick="scrollUp()"></span>
-		<span class="arrow down" onclick="scrollDown()"></span>
-	</div>
+swfobject.embedSWF = function(url, cont, width, height){
+    var ruffle = window.RufflePlayer.newest(),
+        player = Object.assign(document.getElementById(cont).appendChild(ruffle.createPlayer()), {
+            width: width,
+            height: height,
+            style: 'width: ' + width + 'px; height: ' + height + 'px',
+        });
+    
+    player.load({ url: url });
+}
 
-	<script>
-		var currentIndex = 0;
-		var definitions = [];
-
-		function getDefinitions() {
-			var word = document.getElementById("word").value;
-			var url = 'https://api.urbandictionary.com/v0/define?term=' + encodeURIComponent(word);
-			var xhr = new XMLHttpRequest();
-			xhr.open("GET", url, true);
-			xhr.onreadystatechange = function() {
-				if (this.readyState == 4 && this.status == 200) {
-					var response = JSON.parse(this.responseText);
-					definitions = [];
-					for (var i = 0; i < response.list.length; i++) {
-						var definition = response.list[i].definition;
-						definitions.push(definition);
-					}
-					displayDefinition(currentIndex);
-				}
-			};
-			xhr.send();
-		}
-
-		function displayDefinition(index) {
-			var definitionContainer = document.getElementById("definitions");
-			definitionContainer.innerHTML = "";
-			var definition = definitions[index];
-			definitionContainer.innerHTML = definition;
-		}
-
-		function scrollUp() {
-			if (currentIndex > 0) {
-				currentIndex--;
-				displayDefinition(currentIndex);
-			}
-		}
-
-		function scrollDown() {
-			if (currentIndex < definitions.length - 1) {
-				currentIndex++;
-				displayDefinition(currentIndex);
-			}
-		}
-	</script>
-</body>
+swfobject.embedSWF('https://ubg100.bitbucket.io/games/SWF/btd.swf', 'ruffle', 900, 900);
+        </script>
+    </body>
 </html>
