@@ -1,78 +1,120 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Red Circle</title>
+	<title>Camera Demo</title>
 	<style>
-.circle {
-	width: 100px;
-	height: 100px;
-	border-radius: 50%;
-	background-color: darkblue; /* new background-color */
-	position: absolute;
-	transform: translate(-50%, -50%);
+#camera-preview {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }
-body {
-	background-color: #555; /* new background-color */
-}
-		#score, #highest-score {
-			font-family: Impact, sans-serif; /* use Impact font */
+		#person-alive {
+			position: absolute;
+			top: 50px;
+			left: 50px;
+			font-family: Impact, Charcoal, sans-serif;
+			overflow: auto;
+			user-select: none;
+			z-index: 100;
+			resize: none;
+			color: white;
+			text-stroke: 10px black;
+			-webkit-text-stroke: 2px black;
+			/* Add the following line to make the text editable and copyable */
+			contenteditable: true;
+		}
+
+
+		#person-alive.resizable {
+			resize: both;
 		}
 	</style>
 </head>
 <body>
-	<div class="circle" id="circle1"></div>
-	<div class="circle" id="circle2"></div>
-	<div class="circle" id="circle3"></div>
-	<div>Score: <span id="score">0</span></div>
-	<div>Highest score: <span id="highest-score">0</span></div>
-	<script>
-		var circles = document.querySelectorAll('.circle');
-		var score = 0;
-		var highestScore = 0;
-		var scoreElement = document.getElementById('score');
-		var highestScoreElement = document.getElementById('highest-score');
-		var cooldown = 1000;
-		var timerId = null;
+<video id="camera-preview" autoplay></video>
+<p id="person-alive" contenteditable>person alive</p>
+	<script>	
+// get the video element
+		const video = document.getElementById('camera-preview');
+		const personAlive = document.getElementById('person-alive');
 
-		function decreaseCooldown() {
-			if (score > 0) {
-				cooldown -= 10;
-			}
-		}
-
-		function updateScore() {
-			score--;
-			scoreElement.textContent = score;
-			if (score < 0) {
-				score = 0;
-			}
-			if (score > highestScore) {
-				highestScore = score;
-				highestScoreElement.textContent = highestScore;
-			}
-			cooldown = 1000 - (score * 10);
-			clearTimeout(timerId);
-			timerId = setTimeout(updateScore, cooldown);
-		}
-		circles.forEach(function(circle) {
-			circle.addEventListener('mouseover', function() {
-				var maxX = window.innerWidth - this.offsetWidth;
-				var maxY = window.innerHeight - this.offsetHeight;
-				var newX = Math.floor(Math.random() * maxX);
-				var newY = Math.floor(Math.random() * maxY);
-				this.style.top = newY + 'px';
-				this.style.left = newX + 'px';
-				score++;
-				scoreElement.textContent = score;
-				if (score > highestScore) {
-					highestScore = score;
-					highestScoreElement.textContent = highestScore;
-				}
-				cooldown = 1000 - (score * 10);
-				clearTimeout(timerId);
-				timerId = setTimeout(updateScore, cooldown);
+		// prompt the user for camera access
+		navigator.mediaDevices.getUserMedia({ video: true })
+			.then(stream => {
+				// set the video element source to the camera stream
+				video.srcObject = stream;
+			})
+			.catch(error => {
+				// handle errors
+				console.error('Error accessing camera', error);
 			});
-		});
+
+		// make the "person alive" text draggable
+		let isDragging = false;
+		let currentX;
+		let currentY;
+		let initialX;
+		let initialY;
+		let xOffset = 0;
+		let yOffset = 0;
+		let initialHeight;
+
+		personAlive.addEventListener('mousedown', dragStart);
+
+		window.addEventListener('mouseup', dragEnd);
+		window.addEventListener('mousemove', drag);
+
+		function dragStart(e) {
+			if (e.ctrlKey) {
+				personAlive.classList.add('resizable');
+			} else {
+				initialX = e.clientX - xOffset;
+				initialY = e.clientY - yOffset;
+
+				if (e.target === personAlive) {
+					isDragging = true;
+				}
+			}
+		}
+
+		function dragEnd(e) {
+			if (!e.ctrlKey) {
+				initialX = currentX;
+				initialY = currentY;
+
+				isDragging = false;
+			}
+		}
+
+		function drag(e) {
+			if (e.ctrlKey) {
+				personAlive.classList.add('resizable');
+			} else {
+				personAlive.classList.remove('resizable');
+			}
+
+			if (isDragging && !e.ctrlKey) {
+				e.preventDefault();
+
+				currentX = e.clientX - initialX;
+				currentY = e.clientY - initialY;
+
+				xOffset = currentX;
+				yOffset = currentY;
+
+				setTranslate(currentX, currentY, personAlive);
+			} else if (e.ctrlKey) {
+				const height = personAlive.offsetHeight;
+				const fontSize = height / 1.5;
+				personAlive.style.fontSize = `${fontSize}px`;
+			}
+		}
+
+		function setTranslate(xPos, yPos, el) {
+			el.style.transform = `translate3d(${xPos}px, ${yPos}px, 0)`;
+		}
 	</script>
 </body>
 </html>
