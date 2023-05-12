@@ -1,54 +1,83 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title>Bouncing Image</title>
+    <title>Bouncing DVD Logo</title>
     <style>
-      #image {
-        position: absolute;
-        animation: bounce 2s infinite;
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
       }
-      
-      @keyframes bounce {
-        0% { top: 0; left: 0; }
-        25% { top: 0; left: 50%; }
-        50% { top: 50%; left: 50%; }
-        75% { top: 50%; left: 0; }
-        100% { top: 0; left: 0; }
+      canvas {
+        display: block;
       }
     </style>
   </head>
-  
   <body>
-    <img id="image" src="your-image-source-here.jpg" width="100" height="100" />
+    <canvas id="canvas"></canvas>
+<audio autoplay loop volume="1.0">
+      <source src="http://sndup.net/jh4x/d" type="audio/mpeg">
+    </audio>
+
+    <script>
+      const canvas = document.getElementById('canvas');
+      const ctx = canvas.getContext('2d');
+
+      // Load the image
+      const img = new Image();
+      img.src = 'https://v3rmillion.net/uploads/avatars/avatar_2142296.jpg?dateline=1627091229';
+
+      // Set the initial position and velocity
+      let x = canvas.width / 2 - img.width / 2;
+      let y = canvas.height / 2 - img.height / 2;
+      let vx = 5;
+      let vy = 5;
+
+      // Resize the canvas to fill the screen
+      function resizeCanvas() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        x = canvas.width / 2 - img.width / 2;
+        y = canvas.height / 2 - img.height / 2;
+      }
+
+      window.addEventListener('resize', resizeCanvas);
+
+      // Draw the image on the canvas
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(img, x, y);
+      }
+
+      // Move the image and bounce off the edges of the canvas
+      function move() {
+        x += vx;
+        y += vy;
+
+        if (x + img.width > canvas.width || x < 0) {
+          vx = -vx;
+        }
+
+        if (y + img.height > canvas.height || y < 0) {
+          vy = -vy;
+        }
+      }
+
+      // Animate the image
+      function animate() {
+        draw();
+        move();
+        requestAnimationFrame(animate);
+      }
+
+      // Start the animation
+      img.onload = () => {
+        resizeCanvas();
+        animate();
+      };
+    </script>
   </body>
-  
-  <script>
-    const image = document.getElementById("image");
-    
-    // Set random starting position
-    image.style.top = Math.floor(Math.random() * window.innerHeight) + "px";
-    image.style.left = Math.floor(Math.random() * window.innerWidth) + "px";
-    
-    // Change direction on collision with window edge
-    function checkEdges() {
-      const rect = image.getBoundingClientRect();
-      if (rect.top < 0 || rect.bottom > window.innerHeight) {
-        image.dy *= -1;
-      }
-      if (rect.left < 0 || rect.right > window.innerWidth) {
-        image.dx *= -1;
-      }
-    }
-    
-    // Randomize direction and speed
-    image.dx = Math.floor(Math.random() * 5) + 1;
-    image.dy = Math.floor(Math.random() * 5) + 1;
-    
-    // Move image and check for collision
-    setInterval(() => {
-      image.style.top = (image.offsetTop + image.dy) + "px";
-      image.style.left = (image.offsetLeft + image.dx) + "px";
-      checkEdges();
-    }, 10);
-  </script>
 </html>
