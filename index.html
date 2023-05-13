@@ -1,89 +1,112 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <title>Dodgeball</title>
-    <style>
-      body {
-        background-color: #333333;
-      }
+<head>
+<meta charset="UTF-8">
+<title>Google</title>
+<style>
+body {
+background-color: #14b86b;
+font-family: Arial, sans-serif;
+color: #ffffff;
+}
+h1 {
+text-align: center;
+margin-top: 50px;
+font-size: 48px;
+}
+.container {
+display: flex;
+flex-direction: column;
+align-items: center;
+margin-top: 50px;
+}
+.question-input {
+border: none;
+border-radius: 5px;
+padding: 10px;
+margin-top: 20px;
+font-size: 18px;
+width: 500px;
+max-width: 100%;
+background-color: #05fc88;
+color: #ffffff;
+text-align: center;
+outline: none;
+}
+.answer {
+margin-top: 20px;
+font-size: 15px;
+text-align: center;
+}
+.loading {
+font-size: 15px;
+text-align: center;
+}
+button {
+margin-top: 10px;
+font-size: 16px;
+background-color: #18ed89;
+color: #ffffff;
+border: none;
+border-radius: 5px;
+padding: 10px;
+cursor: pointer;
+}
+</style>
+</head>
+<body>
+<h1>CLIFF BOT PRO</h1>
+<div class="container">
+<input type="text" id="question" class="question-input" placeholder="Ask a question...">
+<div id="loading" class="loading"></div>
+<div id="answer" class="answer"></div>
+<button id="speak-button" disabled>Speak Answer</button>
+</div>
+<script>
+const OPENAI_API_KEY = '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';
+const questionInput = document.getElementById('question');
+const loading = document.getElementById('loading');
+const answer = document.getElementById('answer');
+const speakButton = document.getElementById('speak-button');
+let speech = new SpeechSynthesisUtterance();
 
-      .circle {
-        width: 100px;
-        height: 100px;
-        background-color: blue;
-        border-radius: 50%;
-        position: absolute;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-      }
+questionInput.addEventListener('keydown', (event) => {
+if (event.keyCode === 13) {
+loading.innerText = 'Loading Answer Please Wait...';
+answer.innerText = '';
+speakButton.disabled = true;
 
-      #score {
-        font-family: Impact, sans-serif;
-        font-size: 48px;
-        color: white;
-        text-shadow: 2px 2px 2px black;
-        position: absolute;
-        top: 20px;
-        left: 50%;
-        transform: translateX(-50%);
-      }
-    </style>
-  </head>
-  <body>
-    <div class="circle"></div>
-    <div id="score">Score: 0</div>
-    <script>
-      var circle = document.querySelector('.circle');
-      var speed = 8;
-      var mouseX = 0;
-      var mouseY = 0;
-      var score = 0;
+fetch('https://api.openai.com/v1/completions', {
+method: 'POST',
+headers: {
+'Content-Type': 'application/json',
+'Authorization': `Bearer ${OPENAI_API_KEY}`
+},
+body: JSON.stringify({
+model: 'text-davinci-003',
+prompt:  "Act as Cliff, 14, a black Texan with a penchant for steak but doesn't talk about it much and an eye as sharp as his wit, spoke in an friendly but tough, sarcastic tone. His favorite color was black and he didn't take kindly to insults. He was smart enough to spot a scam or trick from a mile away, never one to follow orders or try to diffuse angry tones. Heres my first prompt. "+questionInput.value+" ",
+temperature: 0.7,
+max_tokens: 1000,
+top_p: 1,
+frequency_penalty: 0,
+presence_penalty: 0
+})
+})
+.then(response => response.json())
+.then(data => {
+const answerText = data.choices[0].text.trim();
+loading.innerText = '';
+answer.innerText = answerText;
+speech.text = answerText;
+speakButton.disabled = false;
+})
+.catch(error => console.error(error));
+}
+});
 
-      document.addEventListener('mousemove', function(e) {
-        mouseX = e.clientX;
-        mouseY = e.clientY;
-      });
-
-      function animateCircle() {
-        var circleX = circle.getBoundingClientRect().left + circle.offsetWidth / 2;
-        var circleY = circle.getBoundingClientRect().top + circle.offsetHeight / 2;
-        var deltaX = mouseX - circleX;
-        var deltaY = mouseY - circleY;
-        var distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
-        var angle = Math.atan2(deltaY, deltaX);
-        var moveX = speed * Math.cos(angle);
-        var moveY = speed * Math.sin(angle);
-        if (distance > speed) {
-          circle.style.left = circleX + moveX + 'px';
-          circle.style.top = circleY + moveY + 'px';
-        }
-        requestAnimationFrame(animateCircle);
-
-        var bodyRect = document.body.getBoundingClientRect();
-        var circleRect = circle.getBoundingClientRect();
-        var circleCenterX = circleRect.left + circleRect.width / 2 - bodyRect.left;
-        var circleCenterY = circleRect.top + circleRect.height / 2 - bodyRect.top;
-        var cursorDistance = Math.sqrt(Math.pow(mouseX - circleCenterX, 2) + Math.pow(mouseY - circleCenterY, 2));
-        if (cursorDistance < circleRect.width / 2) {
-          alert('You lost!');
-          score = 0;
-          speed = 8;
-          document.getElementById('score').innerHTML = 'Score: ' + score;
-          circle.style.top = '50%';
-          circle.style.left = '50%';
-        }
-      }
-
-      function updateScore() {
-        score += 1;
-        speed += 0.3;
-        document.getElementById('score').innerHTML = 'Score: ' + score;
-      }
-
-      setInterval(updateScore, 1000);
-
-      animateCircle();
-    </script>
-  </body>
+speakButton.addEventListener('click', () => {
+window.speechSynthesis.speak(speech);
+});
+</script>
+</body>
 </html>
