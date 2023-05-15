@@ -1,43 +1,4 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<title>Google</title>
-<style>
-body {
-background-color: #14b86b;
-font-family: Arial, sans-serif;
-color: #ffffff;
-}
-h1 {
-text-align: center;
-margin-top: 50px;
-font-size: 48px;
-}
-.container {
-display: flex;
-flex-direction: column;
-align-items: center;
-margin-top: 50px;
-}
-.question-input {
-border: none;
-border-radius: 5px;
-padding: 10px;
-margin-top: 20px;
-font-size: 18px;
-width: 500px;
-max-width: 100%;
-background-color: #05fc88;
-color: #ffffff;
-text-align: center;
-outline: none;
-}
-.answer {
-margin-top: 20px;
-font-size: 15px;
-text-align: center;
-}
+
 .loading {
 font-size: 15px;
 text-align: center;
@@ -49,7 +10,20 @@ background-color: #18ed89;
 color: #ffffff;
 border: none;
 border-radius: 5px;
-padding: 10px;
+padding: 10px;oading.innerText = '';
+answer.innerText = answerText;
+speech.text = answerText;
+speakButton.disabled = false;
+})
+.catch(error => console.error(error));
+}
+});
+speakButton.addEventListener('click', () => {
+window.speechSynthesis.speak(speech);
+});
+</script>
+</body>
+</html>
 cursor: pointer;
 }
 </style>
@@ -96,17 +70,4 @@ presence_penalty: 0
 .then(response => response.json())
 .then(data => {
 const answerText = data.choices[0].text.trim();
-loading.innerText = '';
-answer.innerText = answerText;
-speech.text = answerText;
-speakButton.disabled = false;
-})
-.catch(error => console.error(error));
-}
-});
-speakButton.addEventListener('click', () => {
-window.speechSynthesis.speak(speech);
-});
-</script>
-</body>
-</html>
+l
