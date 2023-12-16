@@ -1,73 +1,19 @@
-
-.loading {
-font-size: 15px;
-text-align: center;
-}
-button {
-margin-top: 10px;
-font-size: 16px;
-background-color: #18ed89;
-color: #ffffff;
-border: none;
-border-radius: 5px;
-padding: 10px;oading.innerText = '';
-answer.innerText = answerText;
-speech.text = answerText;
-speakButton.disabled = false;
-})
-.catch(error => console.error(error));
-}
-});
-speakButton.addEventListener('click', () => {
-window.speechSynthesis.speak(speech);
-});
-</script>
-</body>
-</html>
-cursor: pointer;
-}
-</style>
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        .center {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            font-size: 20px;
+        }
+    </style>
 </head>
 <body>
-<h1>CLIFF BOT PRO</h1>
-<div class="container">
-<input type="text" id="question" class="question-input" placeholder="Ask a question...">
-<div id="loading" class="loading"></div>
-<div id="answer" class="answer"></div>
-<button id="speak-button" disabled>Speak Answer</button>
-</div>
-<script>
-const OPENAI_API_KEY = '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';
-const questionInput = document.getElementById('question');
-const loading = document.getElementById('loading');
-const answer = document.getElementById('answer');
-const speakButton = document.getElementById('speak-button');
-let speech = new SpeechSynthesisUtterance();
- 
-
-questionInput.addEventListener('keydown', (event) => {
-if (event.keyCode === 13) {
-loading.innerText = 'Loading Answer Please Wait...';
-answer.innerText = '';
-speakButton.disabled = true;
-
-fetch('https://api.openai.com/v1/completions', {
-method: 'POST',
-headers: {
-'Content-Type': 'application/json',
-'Authorization': `Bearer ${OPENAI_API_KEY}`
-},
-body: JSON.stringify({
-model: 'text-davinci-003',
-prompt:  "Act as Cliff, 14, a black Texan with a penchant for steak but doesn't talk about it much and an eye as sharp as his wit, spoke in an friendly but tough, sarcastic tone. His favorite color was black and he didn't take kindly to insults. He was smart enough to spot a scam or trick from a mile away, never one to follow orders or try to diffuse angry tones. Heres my first prompt. "+questionInput.value+" ",
-temperature: 0.7,
-max_tokens: 1000,
-top_p: 1,
-frequency_penalty: 0,
-presence_penalty: 0
-})
-})
-.then(response => response.json())
-.then(data => {
-const answerText = data.choices[0].text.trim();
-l
+    <div class="center">
+        If you see this the website works
+    </div>
+</body>
+</html>
